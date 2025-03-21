@@ -27,6 +27,11 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
 
+      - name: Add SSH Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
       - name: Deploy to EC2
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
@@ -36,6 +41,9 @@ jobs:
           # Ensure private key is securely written and set correct permissions
           echo "$PRIVATE_KEY" > todo.pem
           chmod 600 todo.pem
+
+          # Test SSH Connection
+          ssh -o StrictHostKeyChecking=no -i todo.pem $EC2_USER@$EC2_HOST "echo 'SSH Key Test Passed'"
 
           # Transfer application files to EC2 instance
           scp -o StrictHostKeyChecking=no -i todo.pem -r ./* $EC2_USER@$EC2_HOST:/home/$EC2_USER/app
