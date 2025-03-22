@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main  # Change if using a different branch
+      - main 
 
 jobs:
   deploy:
